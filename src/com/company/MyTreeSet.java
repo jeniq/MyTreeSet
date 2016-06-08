@@ -1,8 +1,6 @@
 package com.company;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Женя on 06.06.2016.
@@ -24,8 +22,8 @@ public class MyTreeSet<T extends Comparable<T>> implements Set<T> {
 
 
     public boolean add(T o) {
-        if (root.value == null){
-            root.value = o;
+        if (root == null){
+            root = new Node(o);
         }
         Node<T> current = root;
         while(current != null){
@@ -127,14 +125,83 @@ public class MyTreeSet<T extends Comparable<T>> implements Set<T> {
         return false;
     }
 
+
     @Override
     public int size(){
         return size(root);
     }
 
     @Override
-    public Iterator iterator() {
-        return null;
+    public Iterator<T> iterator() {
+        return new ListIterator<T>() {
+            Node<T> current = root;
+            List<T> checked = new ArrayList<>();
+
+            @Override
+            public boolean hasNext() {
+                return (current.left != null || current.right != null);
+            }
+
+            @Override
+            public T next() {
+                if (current.left != null){
+                    current = current.left;
+                    checked.add(current.value);
+                    return current.value;
+                }else if (current.right != null){
+                    current = current.right;
+                    checked.add(current.value);
+                    return current.value;
+                }
+                while(checked.contains(current.value)) {
+                    if (current == root && root.right == null) {
+                        throw new ArrayIndexOutOfBoundsException("No elements else!");
+                    }
+                    if (current.parent.right != null && current.parent.right != current) { // current leaf is left
+                        current = current.parent.right;
+                    } else {
+                        current = current.parent;
+                    }
+                }
+                checked.add(current.value);
+                return current.value;
+            }
+
+            @Override
+            public boolean hasPrevious() {
+                return current.parent != null;
+            }
+
+            @Override
+            public T previous() {
+                return current.parent.value;
+            }
+
+            @Override
+            public int nextIndex() {
+                return 0;
+            }
+
+            @Override
+            public int previousIndex() {
+                return 0;
+            }
+
+            @Override
+            public void remove() {
+
+            }
+
+            @Override
+            public void set(T t) {
+
+            }
+
+            @Override
+            public void add(T t) {
+
+            }
+        };
     }
 
     @Override
